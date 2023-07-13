@@ -1,9 +1,10 @@
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+import { expect } from 'chai';
+import { Contract } from 'ethers';
+import { ethers } from 'hardhat';
 // const erc20Abi = require('../contracts/abi/erc20.json');
 
 describe('ERC1155Converter', function () {
-  let counterContractInstance;
+  let counterContractInstance: Contract;
   beforeEach(async function () {
     // const accounst = await ethers.getSigners();
     const Counter = await ethers.getContractFactory('Counter');

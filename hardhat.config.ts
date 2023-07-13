@@ -1,11 +1,15 @@
-require('dotenv').config();
-require('@nomiclabs/hardhat-waffle');
-require('@nomicfoundation/hardhat-verify');
-require('solidity-coverage');
-require('hardhat-gas-reporter');
+import dotenv from 'dotenv';
+import '@nomiclabs/hardhat-waffle';
+import '@nomicfoundation/hardhat-verify';
+import 'solidity-coverage';
+import 'hardhat-gas-reporter';
+
+dotenv.config();
+
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
+
 /** @type import('hardhat/config').HardhatUserConfig */
-module.exports = {
+const config = {
   gasReporter: {
     enabled: true,
   },
@@ -43,3 +47,5 @@ module.exports = {
     },
   },
 };
+
+export default config;
