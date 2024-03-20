@@ -6,22 +6,39 @@
 const hre = require('hardhat');
 
 async function main() {
-  const Counter = await hre.ethers.getContractFactory('Counter');
-  const counterContractInstance = await Counter.deploy();
+  const TestERC20 = await hre.ethers.getContractFactory('ERC20Def');
+    const testERC20 = await TestERC20.deploy('Test','TEST',100000000);
+    await testERC20.waitForDeployment()
+    console.log(
+      `Deployed to: ${await testERC20.address}`
+    );
 
-  console.log(
-    'ERC1155Converter Instance address ',
-    counterContractInstance.address
-  );
+    const VibeCheck = await hre.ethers.getContractFactory('VibeCheck');
+    const vibeCheck = await VibeCheck.deploy(
+      testERC20.address,
+      'How do people like their coffee?',
+      100000,
+      1,
+      30,
+      3,
+      6,
+      100,
+      50
+    );//address _token, 
+    // string memory _question, 
+    // uint256 _duration, 
+    // uint256 _feeAmount,
+    // uint256 _initialAverage, 
+    // uint256 _narrowLimit, 
+    // uint256 _broadLimit,
+    // uint256 _narrowReward,
+    //  uint256 _broadReward
 
-  await counterContractInstance.deployTransaction.wait(3);
-  // await sleep(20000);
-
-  // await hre.run('verify:verify', {
-  //   contract: 'contracts/Counter.sol:Counter',
-  //   address: counterContractInstance.address,
-  //   constructorArguments: [],
-  // });
+    console.log(
+        `Deployed to: ${await vibeCheck.address}`
+      );
+    
+    tx = await testERC20.transfer(await vibeCheck.address,100000)
 }
 
 main()

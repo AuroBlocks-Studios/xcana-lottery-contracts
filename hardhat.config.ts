@@ -14,31 +14,25 @@ const config = {
     enabled: true,
   },
   networks: {
-    // hardhat: {
-    //   forking: {
-    //     url: 'https://polygon-rpc.com',
-    //     accounts: [`0x${PRIVATE_KEY}`],
-    //   },
-    // },
-    localhost: {
-      url: 'http://localhost:8545', // uses account 0 of the hardhat node to deploy
+    hardhat: { 
+      forking: {
+        enabled:false,
+        url: 'https://testnet.ten.xyz/v1/?token=af0bc4b4b078d6f99c1e043eda61ad0d2e5c08dd',
+        accounts: [`0x${PRIVATE_KEY}`],
+        chainId: 443,
+      },
     },
-    mumbai: {
-      url: `https://rpc-mumbai.maticvigil.com`,
-      accounts: [`0x${PRIVATE_KEY}`],
-      gasPrice: 30000000000, //30 gwei
-    },
-    polygon: {
-      url: 'https://polygon-rpc.com',
-      accounts: [`0x${process.env.PRIVATE_KEY}`],
-      gasPrice: 170000000000, // 170 gwei
+    tentest: {
+      chainId: 443,
+      url: 'https://testnet.ten.xyz/v1/?token=af0bc4b4b078d6f99c1e043eda61ad0d2e5c08dd',
+      accounts: [`0x${PRIVATE_KEY}`]
     },
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
   solidity: {
-    version: '0.8.9',
+    version: '0.8.19',
     settings: {
       optimizer: {
         enabled: true,
