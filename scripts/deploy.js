@@ -8,7 +8,7 @@ const hre = require('hardhat');
 async function main() {
   const TestERC20 = await hre.ethers.getContractFactory('ERC20Def');
     const testERC20 = await TestERC20.deploy('Test','TEST',100000000);
-    await testERC20.waitForDeployment()
+    await testERC20.deployed()
     console.log(
       `Deployed to: ${await testERC20.address}`
     );
@@ -33,7 +33,8 @@ async function main() {
     // uint256 _broadLimit,
     // uint256 _narrowReward,
     //  uint256 _broadReward
-
+    
+    await vibeCheck.deployed()
     console.log(
         `Deployed to: ${await vibeCheck.address}`
       );
