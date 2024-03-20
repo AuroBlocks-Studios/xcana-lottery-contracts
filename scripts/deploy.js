@@ -3,7 +3,7 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-import hre from 'hardhat';
+const hre = require('hardhat');
 
 async function main() {
   const Counter = await hre.ethers.getContractFactory('Counter');
@@ -17,11 +17,11 @@ async function main() {
   await counterContractInstance.deployTransaction.wait(3);
   // await sleep(20000);
 
-  await hre.run('verify:verify', {
-    contract: 'contracts/Counter.sol:Counter',
-    address: counterContractInstance.address,
-    constructorArguments: [],
-  });
+  // await hre.run('verify:verify', {
+  //   contract: 'contracts/Counter.sol:Counter',
+  //   address: counterContractInstance.address,
+  //   constructorArguments: [],
+  // });
 }
 
 main()

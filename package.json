@@ -8,13 +8,13 @@
     "compile": "npx hardhat compile",
     "coverage": "npx hardhat coverage",
     "deploy": "HARDHAT_NETWORK=mumbai npx hardhat run scripts/deploy.ts",
-    "precommit": "lint-staged",
+    "precommit": "npx hardhat compile",
     "prepush": "npm run test",
     "lint": "npm run lint:ts",
     "lint:fix": "npm run lint:ts:fix && npm run lint:sol:fix",
-    "lint:js": "prettier --loglevel warn --ignore-path .gitignore '**/*.{js,ts}' --check && eslint --ignore-path .gitignore .",
-    "lint:js:fix": "prettier --loglevel warn --ignore-path .gitignore '**/*.{js,ts}' --write && eslint --ignore-path .gitignore . --fix",
-    "lint:sol:fix": "prettier --loglevel warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --write",
+    "lint:js": "prettier --loglevel warn --ignore-path .gitignore \"**/*.js\" --check && eslint --ignore-path .gitignore .",
+    "lint:js:fix": "prettier --loglevel warn --ignore-path .gitignore \"**/*.js\" --write && eslint --ignore-path .gitignore . --fix",
+    "lint:sol:fix": "prettier --loglevel warn --ignore-path .gitignore \"{contracts,test}/**/*.sol\" --write",
     "prepare": "husky install"
   },
   "lint-staged": {
