@@ -24,6 +24,7 @@ contract VibeCheck is Ownable {
     uint256 public totalGuesses;        //Total guesses since start time
 
     mapping(address => uint256) private guesses; // Mapping of guesser addresses to their guesses
+    mapping(address => uint256) private winnings; // Mapping of guesser addresses to their winnings
 
     /// @notice Event triggered when parameters are set
     event ParamSet(
@@ -92,6 +93,7 @@ contract VibeCheck is Ownable {
             uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
             currentAverage = newAverage;
             guesses[msg.sender] = value;
+            winnings[msg.sender] = narrowReward;
             emit GuessMade(msg.sender, currentAverage, newAverage, narrowReward, value);
         } else if (value >= currentAverage - broadLimit && value <= currentAverage + broadLimit) {
             // User's guess is within broad limit
@@ -99,12 +101,14 @@ contract VibeCheck is Ownable {
             uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
             currentAverage = newAverage;
             guesses[msg.sender] = value;
+            winnings[msg.sender] = broadReward;
             emit GuessMade(msg.sender, currentAverage, newAverage, broadReward, value);
         }
         else{
             uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
             currentAverage = newAverage;
             guesses[msg.sender] = value;
+            winnings[msg.sender] = 0;
             emit GuessMade(msg.sender, currentAverage, newAverage, 0, value);
         }
     }
@@ -115,6 +119,14 @@ contract VibeCheck is Ownable {
     function checkMyGuess(address guesser) external view returns (uint256) {
         require(msg.sender == guesser,"Can only check own guess");
         return guesses[guesser];
+    }
+
+    /// @notice Check your guessed number
+    /// @param guesser Address of guesser
+    /// @dev Requires that caller is the guesser(guess is private to each player)
+    function checkMyWinnings(address guesser) external view returns (uint256) {
+        require(msg.sender == guesser,"Can only check own winnings");
+        return winnings[guesser];
     }
 
     /// @notice Check the current average

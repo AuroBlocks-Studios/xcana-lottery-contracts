@@ -7,7 +7,7 @@ const hre = require('hardhat');
 
 async function main() {
   const TestERC20 = await hre.ethers.getContractFactory('ERC20Def');
-    const testERC20 = await TestERC20.deploy('Test','TEST',100000000);
+    const testERC20 = await TestERC20.deploy('Vibe','VIBE',100000000);
     await testERC20.deployed()
     console.log(
       `Deployed to: ${await testERC20.address}`
@@ -38,8 +38,33 @@ async function main() {
     console.log(
         `Deployed to: ${await vibeCheck.address}`
       );
+    const vibeCheck2 = await VibeCheck.deploy(
+      testERC20.address,
+      'Do you go to the gym regularly?',
+      100000,
+      1,
+      30,
+      3,
+      6,
+      100,
+      50
+    );//address _token, 
+    // string memory _question, 
+    // uint256 _duration, 
+    // uint256 _feeAmount,
+    // uint256 _initialAverage, 
+    // uint256 _narrowLimit, 
+    // uint256 _broadLimit,
+    // uint256 _narrowReward,
+    //  uint256 _broadReward
+    
+    await vibeCheck2.deployed()
+    console.log(
+        `Deployed to: ${await vibeCheck2.address}`
+      );
     
     tx = await testERC20.transfer(await vibeCheck.address,100000)
+    tx2 = await testERC20.transfer(await vibeCheck.address,100000)
 }
 
 main()
