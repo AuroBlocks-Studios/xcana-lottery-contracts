@@ -121,6 +121,17 @@ contract VibeCheck is Ownable {
         return guesses[guesser];
     }
 
+    /// @notice Check if player has guessed
+    /// @param guesser Address of guesser
+    /// @dev Requires that caller is the guesser(guess is private to each player)
+    function checkIfPlayed(address guesser) external view returns (bool) {
+        require(msg.sender == guesser,"Can only check own guess");
+        if(guesses[guesser] == 0)
+            return false;
+        else 
+            return true;    
+    }
+
     /// @notice Check your guessed number
     /// @param guesser Address of guesser
     /// @dev Requires that caller is the guesser(guess is private to each player)
@@ -204,6 +215,11 @@ contract VibeCheck is Ownable {
         broadReward = _broadReward;
 
         emit ParamSet(msg.sender,_token, _question, _duration, _feeAmount, _initialAverage, _narrowLimit, _broadLimit, _narrowReward, _broadReward);
+    }
+
+    /// @notice Check the question details
+    function checkQuestionDetails() external view returns (string memory, uint256, uint256, uint256) {
+        return (question,startTime,endTime,feeAmount);
     }
 
     /// @notice Withdraw collected fees from contract

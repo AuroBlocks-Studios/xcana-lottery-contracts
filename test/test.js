@@ -80,6 +80,24 @@ describe('Deploy Contracts', function () {
         //   console.log(tx)
           expect(tx).to.equal(15);
         });
+        it('Should record if guessed', async function () {
+          const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
+          
+          tx = await vibeCheck.connect(player).guess(15,{value: ethers.utils.parseEther("0.000000000000000001")});
+          receipt = await tx.wait();
+
+          tx = await vibeCheck.connect(player).checkIfPlayed(player.address)
+        //   console.log(tx)
+          expect(tx).to.equal(true);
+        });
+        it('Should not record if not guessed', async function () {
+          const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
+          
+
+          tx = await vibeCheck.connect(player).checkIfPlayed(player.address)
+        //   console.log(tx)
+          expect(tx).to.equal(false);
+        });
         it('Should store a players winnings', async function () {
           const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
           
