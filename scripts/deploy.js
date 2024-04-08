@@ -65,7 +65,10 @@ async function main() {
     
     tx = await testERC20.transfer(await vibeCheck.address,100000)
     tx2 = await testERC20.transfer(await vibeCheck.address,100000)
-}
+
+    tx3= await vibeCheck.checkFee()
+    console.log(tx3)  
+  }
 
 main()
   .then(() => process.exit(0))
