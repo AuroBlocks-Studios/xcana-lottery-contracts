@@ -25,6 +25,11 @@ contract VibeCheck is Ownable {
 
     mapping(address => uint256) private guesses; // Mapping of guesser addresses to their guesses
     mapping(address => uint256) private winnings; // Mapping of guesser addresses to their winnings
+    mapping(address => address) private referrals; // Mapping of guesser addresses to their winnings
+
+    address[] private  playersList;
+    uint256[] private  winningsList;
+    uint256 listIndex;
 
     /// @notice Event triggered when parameters are set
     event ParamSet(
@@ -92,23 +97,95 @@ contract VibeCheck is Ownable {
             // Calculate new average including this guess
             uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
             currentAverage = newAverage;
+
             guesses[msg.sender] = value;
             winnings[msg.sender] = narrowReward;
+            playersList.push(msg.sender);
+            winningsList.push(narrowReward);
+            listIndex = listIndex + 1;
+
             emit GuessMade(msg.sender, currentAverage, newAverage, narrowReward, value);
         } else if (value >= currentAverage - broadLimit && value <= currentAverage + broadLimit) {
             // User's guess is within broad limit
             token.transfer(msg.sender, broadReward); // Transfer 50 tokens to the user as a reward
             uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
             currentAverage = newAverage;
+
             guesses[msg.sender] = value;
             winnings[msg.sender] = broadReward;
+            playersList.push(msg.sender);
+            winningsList.push(broadReward);
+            listIndex = listIndex + 1;
+
             emit GuessMade(msg.sender, currentAverage, newAverage, broadReward, value);
         }
         else{
             uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
             currentAverage = newAverage;
+
             guesses[msg.sender] = value;
             winnings[msg.sender] = 0;
+            playersList.push(msg.sender);
+            winningsList.push(0);
+            listIndex = listIndex + 1;
+
+            emit GuessMade(msg.sender, currentAverage, newAverage, 0, value);
+        }
+    }
+
+    function guessWithReferral(address referral, uint256 value) public payable {
+        require(referral != msg.sender,"Referral address cant be own address");
+        require(value >0 && value<=100, "Value must be between 0-100"); //Check if guess is within range
+        require(msg.value == feeAmount, "Incorrect fee amount"); //Check if correct fee amt is sent
+        require(block.timestamp >= startTime && block.timestamp <= endTime, "Game not active"); //Check if game is active
+        require(guesses[msg.sender] == 0, "You have already guessed"); // Check if the guesser has already made a guess
+
+        referrals[msg.sender] = referral;
+        totalGuesses++;
+
+        if (value >= (currentAverage - narrowLimit) && value <= (currentAverage + narrowLimit)) {
+            // User's guess is within narrow limit
+            // Transfer tokens to the user
+            uint userReward = (narrowReward * 90) / 100;
+            uint referReward = narrowReward - userReward;
+            token.transfer(msg.sender, userReward); // Transfer 90 tokens to the user as a reward
+            token.transfer(referral, referReward); // Transfer 10 tokens to the referral as a reward
+            // Calculate new average including this guess
+            uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
+            currentAverage = newAverage;
+
+            guesses[msg.sender] = value;
+            winnings[msg.sender] = narrowReward;
+            playersList.push(msg.sender);
+            winningsList.push(narrowReward);
+            listIndex = listIndex + 1;
+
+            emit GuessMade(msg.sender, currentAverage, newAverage, narrowReward, value);
+        } else if (value >= currentAverage - broadLimit && value <= currentAverage + broadLimit) {
+            // User's guess is within broad limit
+            uint userReward = (broadReward * 90) / 100;
+            uint referReward = broadReward - userReward;
+            token.transfer(msg.sender, userReward); // Transfer 45 tokens to the user as a reward
+            token.transfer(referral, referReward); // Transfer 5 tokens to the referral as a reward
+            uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
+            currentAverage = newAverage;
+            guesses[msg.sender] = value;
+            winnings[msg.sender] = broadReward;
+            playersList.push(msg.sender);
+            winningsList.push(broadReward);
+            listIndex = listIndex + 1;
+            emit GuessMade(msg.sender, currentAverage, newAverage, broadReward, value);
+        }
+        else{
+            uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
+            currentAverage = newAverage;
+
+            guesses[msg.sender] = value;
+            winnings[msg.sender] = 0;
+            playersList.push(msg.sender);
+            winningsList.push(0);
+            listIndex = listIndex + 1;
+
             emit GuessMade(msg.sender, currentAverage, newAverage, 0, value);
         }
     }
@@ -119,6 +196,14 @@ contract VibeCheck is Ownable {
     function checkMyGuess(address guesser) external view returns (uint256) {
         require(msg.sender == guesser,"Can only check own guess");
         return guesses[guesser];
+    }
+
+    /// @notice Check your referral address
+    /// @param guesser Address of guesser
+    /// @dev Requires that caller is the guesser(referral is private to each player)
+    function checkMyReferral(address guesser) external view returns (address) {
+        require(msg.sender == guesser,"Can only check own referral");
+        return referrals[guesser];
     }
 
     /// @notice Check if player has guessed
@@ -136,7 +221,7 @@ contract VibeCheck is Ownable {
     /// @param guesser Address of guesser
     /// @dev Requires that caller is the guesser(guess is private to each player)
     function checkMyWinnings(address guesser) external view returns (uint256) {
-        require(msg.sender == guesser,"Can only check own winnings");
+        require(msg.sender == guesser || msg.sender == ownerAddress,"Can only check own winnings");
         return winnings[guesser];
     }
 
@@ -188,6 +273,11 @@ contract VibeCheck is Ownable {
     /// @dev Requires that caller is owner
     function setTenTokenAddress(address _token) public onlyOwner {
         token = IERC20(_token);
+    }
+
+    function readAllWinnings() public view returns (address[] memory, uint256[] memory) {
+        require(msg.sender == ownerAddress, "Owner only");
+        return (playersList, winningsList);
     }
     
     /// @notice Set new params for the game
