@@ -1,3 +1,3 @@
 
-# Solidit Hardhat  Boilerplate
+# VibeCheck Smart Contract
 
