@@ -71,7 +71,7 @@ describe('Deploy Contracts', function () {
         it('Should store a guess', async function () {
           const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
           
-          tx = await vibeCheck.connect(player).guess(15,{value: ethers.utils.parseEther("0.000000000000000001")});
+          tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",15,{value: ethers.utils.parseEther("0.000000000000000001")});
           receipt = await tx.wait();
         //   console.log(receipt)
         //   console.log('#########')
@@ -84,7 +84,7 @@ describe('Deploy Contracts', function () {
         it('Should record if guessed', async function () {
           const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
           
-          tx = await vibeCheck.connect(player).guess(15,{value: ethers.utils.parseEther("0.000000000000000001")});
+          tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",15,{value: ethers.utils.parseEther("0.000000000000000001")});
           receipt = await tx.wait();
 
           tx = await vibeCheck.connect(player).checkIfPlayed(player.address)
@@ -102,7 +102,7 @@ describe('Deploy Contracts', function () {
         it('Should store a players winnings', async function () {
           const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
           
-          tx = await vibeCheck.connect(player).guess(28,{value: ethers.utils.parseEther("0.000000000000000001")});
+          tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",28,{value: ethers.utils.parseEther("0.000000000000000001")});
           receipt = await tx.wait();
         //   console.log(receipt)
         //   console.log('#########')
@@ -115,7 +115,7 @@ describe('Deploy Contracts', function () {
         it('Should store a players referral address', async function () {
           const { testERC20,vibeCheck,player,referral } = await loadFixture(deployContracts);
           
-          tx = await vibeCheck.connect(player).guessWithReferral(referral.address,35,{value: ethers.utils.parseEther("0.000000000000000001")});
+          tx = await vibeCheck.connect(player).guess(referral.address,35,{value: ethers.utils.parseEther("0.000000000000000001")});
           receipt = await tx.wait();
         //   console.log(receipt)
         //   console.log('#########')
@@ -128,7 +128,7 @@ describe('Deploy Contracts', function () {
         it('Should increase total guess counter', async function () {
             const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guess(15,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",15,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
@@ -140,35 +140,35 @@ describe('Deploy Contracts', function () {
         it('Should not let player guess again', async function () {
             const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guess(15,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",15,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
             tx = await vibeCheck.connect(player).checkTotalGuesses()
             // console.log(tx)
             
-            await expect(vibeCheck.connect(player).guess(15,{value: ethers.utils.parseEther("0.000000000000000001")})).to.be.revertedWith(
+            await expect(vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",15,{value: ethers.utils.parseEther("0.000000000000000001")})).to.be.revertedWith(
                 "You have already guessed",
               );
           });  
         it('Should not let player guess more than 100', async function () {
             const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
             
-            await expect(vibeCheck.connect(player).guess(101,{value: ethers.utils.parseEther("0.000000000000000001")})).to.be.revertedWith(
+            await expect(vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",101,{value: ethers.utils.parseEther("0.000000000000000001")})).to.be.revertedWith(
                 "Value must be between 0-100",
               );
           });  
         it('Should not let player guess less than 1', async function () {
             const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
             
-            await expect(vibeCheck.connect(player).guess(0,{value: ethers.utils.parseEther("0.000000000000000001")})).to.be.revertedWith(
+            await expect(vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",0,{value: ethers.utils.parseEther("0.000000000000000001")})).to.be.revertedWith(
                 "Value must be between 0-100",
               );
           });  
         it('Should not allow incorrect gas fees', async function () {
             const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
             
-            await expect(vibeCheck.connect(player).guess(10,{value: ethers.utils.parseEther("0.000000000000000002")})).to.be.revertedWith(
+            await expect(vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",10,{value: ethers.utils.parseEther("0.000000000000000002")})).to.be.revertedWith(
                 "Incorrect fee amount",
               );
           });  
@@ -178,7 +178,7 @@ describe('Deploy Contracts', function () {
         it('Should get broad reward for higher broad guess', async function () {
             const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guess(35,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",35,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
@@ -190,7 +190,7 @@ describe('Deploy Contracts', function () {
         it('Should get broad reward for lower broad guess', async function () {
             const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guess(25,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",25,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
@@ -202,7 +202,7 @@ describe('Deploy Contracts', function () {
         it('Should get narrow reward for higher narrow guess', async function () {
             const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guess(32,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",32,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
@@ -214,7 +214,7 @@ describe('Deploy Contracts', function () {
         it('Should get narrow reward for lower narrow guess', async function () {
             const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guess(27,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",27,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
@@ -226,7 +226,7 @@ describe('Deploy Contracts', function () {
         it('Should get narrow reward for perfect guess', async function () {
             const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guess(30,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",30,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
@@ -238,7 +238,7 @@ describe('Deploy Contracts', function () {
         it('Should get no reward for out of range guess', async function () {
             const { testERC20,vibeCheck,player } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guess(10,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",10,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
@@ -250,26 +250,26 @@ describe('Deploy Contracts', function () {
         it('Should give reward for referring [Broad]', async function () {
             const { testERC20,vibeCheck,player,referral } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guessWithReferral(referral.address,35,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess(referral.address,35,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
-            tx = await testERC20.connect(player).balanceOf(player.address)
+            tx = await testERC20.connect(referral).balanceOf(referral.address)
             // console.log(tx)
             
-            expect(tx).to.equal(45);
+            expect(tx).to.equal(5);
         });
         it('Should give reward for referring [Narrow]', async function () {
             const { testERC20,vibeCheck,player,referral } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guessWithReferral(referral.address,32,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess(referral.address,32,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
-            tx = await testERC20.connect(player).balanceOf(player.address)
+            tx = await testERC20.connect(referral).balanceOf(referral.address)
             // console.log(tx)
             
-            expect(tx).to.equal(90);
+            expect(tx).to.equal(10);
         });
         
     })
@@ -277,7 +277,7 @@ describe('Deploy Contracts', function () {
         it('Should change average on new guess', async function () { 
             const { testERC20,vibeCheck,player,owner } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guess(24,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",24,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
@@ -288,7 +288,7 @@ describe('Deploy Contracts', function () {
         it('Should keep average as rounded off integer', async function () { 
             const { testERC20,vibeCheck,player,owner } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guess(25,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",25,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
@@ -299,9 +299,9 @@ describe('Deploy Contracts', function () {
         it('Should change average correctly after 2 guesses', async function () { 
             const { testERC20,vibeCheck,player,owner } = await loadFixture(deployContracts);
             
-            tx = await vibeCheck.connect(player).guess(25,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",25,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
-            tx = await vibeCheck.connect(owner).guess(23,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(owner).guess("0x0000000000000000000000000000000000000000",23,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // console.log(receipt)
             // console.log('#########')
@@ -314,23 +314,23 @@ describe('Deploy Contracts', function () {
 
             const [player2,playerx,player3,player4,player5] = await ethers.getSigners();
             
-            tx = await vibeCheck.connect(player).guess(25,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",25,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // tx = await vibeCheck.connect(owner).checkCurrentAverage()
             // console.log(tx)
-            tx = await vibeCheck.connect(player2).guess(23,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player2).guess("0x0000000000000000000000000000000000000000",23,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // tx = await vibeCheck.connect(owner).checkCurrentAverage()
             // console.log(tx)
-            tx = await vibeCheck.connect(player3).guess(21,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player3).guess("0x0000000000000000000000000000000000000000",21,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // tx = await vibeCheck.connect(owner).checkCurrentAverage()
             // console.log(tx)
-            tx = await vibeCheck.connect(player4).guess(17,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player4).guess("0x0000000000000000000000000000000000000000",17,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             // tx = await vibeCheck.connect(owner).checkCurrentAverage()
             // console.log(tx)
-            tx = await vibeCheck.connect(player5).guess(10,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player5).guess("0x0000000000000000000000000000000000000000",10,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             tx = await vibeCheck.connect(owner).checkCurrentAverage()
             // console.log(tx)
@@ -370,7 +370,7 @@ describe('Deploy Contracts', function () {
         // });   
         it('Should be able to withdraw fees', async function () {
             const { testERC20,vibeCheck,player,owner } = await loadFixture(deployContracts);
-            tx = await vibeCheck.connect(player).guess(25,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",25,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();  
             bal = await vibeCheck.connect(owner).getContractBalance()
             tx = await vibeCheck.connect(owner).withdrawFees(owner.address)
@@ -382,7 +382,7 @@ describe('Deploy Contracts', function () {
             const { testERC20,vibeCheck,player,owner } = await loadFixture(deployContracts);  
             tx = await vibeCheck.connect(owner).setLimits(4,8)
             receipt = await tx.wait();
-            tx = await vibeCheck.connect(player).guess(26,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",26,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             reward = await testERC20.connect(player).balanceOf(player.address)
             expect(reward).to.equal(100);
@@ -391,7 +391,7 @@ describe('Deploy Contracts', function () {
             const { testERC20,vibeCheck,player,owner } = await loadFixture(deployContracts);  
             tx = await vibeCheck.connect(owner).setLimits(4,8)
             receipt = await tx.wait();
-            tx = await vibeCheck.connect(player).guess(22,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",22,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             reward = await testERC20.connect(player).balanceOf(player.address)
             expect(reward).to.equal(50);
@@ -400,7 +400,7 @@ describe('Deploy Contracts', function () {
             const { testERC20,vibeCheck,player,owner } = await loadFixture(deployContracts);  
             tx = await vibeCheck.connect(owner).setRewards(40,20)
             receipt = await tx.wait();
-            tx = await vibeCheck.connect(player).guess(27,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",27,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             reward = await testERC20.connect(player).balanceOf(player.address)
             expect(reward).to.equal(40);
@@ -409,7 +409,7 @@ describe('Deploy Contracts', function () {
             const { testERC20,vibeCheck,player,owner } = await loadFixture(deployContracts);  
             tx = await vibeCheck.connect(owner).setRewards(40,20)
             receipt = await tx.wait();
-            tx = await vibeCheck.connect(player).guess(25,{value: ethers.utils.parseEther("0.000000000000000001")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",25,{value: ethers.utils.parseEther("0.000000000000000001")});
             receipt = await tx.wait();
             reward = await testERC20.connect(player).balanceOf(player.address)
             expect(reward).to.equal(20);
@@ -418,7 +418,7 @@ describe('Deploy Contracts', function () {
             const { testERC20,vibeCheck,player,owner } = await loadFixture(deployContracts);  
             tx = await vibeCheck.connect(owner).setFeeAmount(2)
             receipt = await tx.wait();
-            tx = await vibeCheck.connect(player).guess(25,{value: ethers.utils.parseEther("0.000000000000000002")});
+            tx = await vibeCheck.connect(player).guess("0x0000000000000000000000000000000000000000",25,{value: ethers.utils.parseEther("0.000000000000000002")});
             receipt = await tx.wait();
             reward = await testERC20.connect(player).balanceOf(player.address)
             expect(reward).to.equal(50);

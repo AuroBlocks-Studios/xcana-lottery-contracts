@@ -2,11 +2,14 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+interface IERC20Def{
+    function mint(address to,uint256 amount) external;
+}
 
 /// @title VibeCheck Contract for Guessing
 contract VibeCheck is Ownable {
-    IERC20 public token;    //TEN Token Address
+    IERC20Def public token;    //TEN Token Address
     string public question; //Questions string
     address private ownerAddress;   //Owner Address   
 
@@ -20,6 +23,7 @@ contract VibeCheck is Ownable {
     uint256 public broadLimit;          //Broad Range Limit
     uint256 public narrowReward;        //Narrow Reward in tokens
     uint256 public broadReward;         //Broad Reward in tokens
+    uint256 public referralReward = 10;         //Referral Reward in percent
 
     uint256 public totalGuesses;        //Total guesses since start time
 
@@ -64,7 +68,7 @@ contract VibeCheck is Ownable {
          uint256 _broadReward //Broad Reward in tokens
     ) Ownable() {
         ownerAddress = msg.sender;
-        token = IERC20(_token);
+        token = IERC20Def(_token);
         question = _question;
         startTime = block.timestamp;
         endTime = startTime + _duration;
@@ -80,76 +84,29 @@ contract VibeCheck is Ownable {
     }
 
     /// @notice Make a guess for a certain fee
+    /// @param referral Referral Address
     /// @param value Guess Number
     /// @dev Requires that the value is between 1-100, only one attempt per address
-    function guess(uint256 value) public payable  {
-        require(value >0 && value<=100, "Value must be between 0-100"); //Check if guess is within range
-        require(msg.value == feeAmount, "Incorrect fee amount"); //Check if correct fee amt is sent
-        require(block.timestamp >= startTime && block.timestamp <= endTime, "Game not active"); //Check if game is active
-        require(guesses[msg.sender] == 0, "You have already guessed"); // Check if the guesser has already made a guess
-
-        totalGuesses++;
-
-        if (value >= (currentAverage - narrowLimit) && value <= (currentAverage + narrowLimit)) {
-            // User's guess is within narrow limit
-            // Transfer tokens to the user
-            token.transfer(msg.sender, narrowReward); // Transfer 100 tokens to the user as a reward
-            // Calculate new average including this guess
-            uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
-            currentAverage = newAverage;
-
-            guesses[msg.sender] = value;
-            winnings[msg.sender] = narrowReward;
-            playersList.push(msg.sender);
-            winningsList.push(narrowReward);
-            listIndex = listIndex + 1;
-
-            emit GuessMade(msg.sender, currentAverage, newAverage, narrowReward, value);
-        } else if (value >= currentAverage - broadLimit && value <= currentAverage + broadLimit) {
-            // User's guess is within broad limit
-            token.transfer(msg.sender, broadReward); // Transfer 50 tokens to the user as a reward
-            uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
-            currentAverage = newAverage;
-
-            guesses[msg.sender] = value;
-            winnings[msg.sender] = broadReward;
-            playersList.push(msg.sender);
-            winningsList.push(broadReward);
-            listIndex = listIndex + 1;
-
-            emit GuessMade(msg.sender, currentAverage, newAverage, broadReward, value);
-        }
-        else{
-            uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
-            currentAverage = newAverage;
-
-            guesses[msg.sender] = value;
-            winnings[msg.sender] = 0;
-            playersList.push(msg.sender);
-            winningsList.push(0);
-            listIndex = listIndex + 1;
-
-            emit GuessMade(msg.sender, currentAverage, newAverage, 0, value);
-        }
-    }
-
-    function guessWithReferral(address referral, uint256 value) public payable {
+    function guess(address referral, uint256 value) public payable {
         require(referral != msg.sender,"Referral address cant be own address");
         require(value >0 && value<=100, "Value must be between 0-100"); //Check if guess is within range
         require(msg.value == feeAmount, "Incorrect fee amount"); //Check if correct fee amt is sent
         require(block.timestamp >= startTime && block.timestamp <= endTime, "Game not active"); //Check if game is active
         require(guesses[msg.sender] == 0, "You have already guessed"); // Check if the guesser has already made a guess
 
-        referrals[msg.sender] = referral;
+        if(referral != address(0))
+            referrals[msg.sender] = referral;
+        
         totalGuesses++;
 
         if (value >= (currentAverage - narrowLimit) && value <= (currentAverage + narrowLimit)) {
             // User's guess is within narrow limit
             // Transfer tokens to the user
-            uint userReward = (narrowReward * 90) / 100;
-            uint referReward = narrowReward - userReward;
-            token.transfer(msg.sender, userReward); // Transfer 90 tokens to the user as a reward
-            token.transfer(referral, referReward); // Transfer 10 tokens to the referral as a reward
+            uint userReward = narrowReward; 
+            uint referReward = (narrowReward * referralReward) / 100;
+            token.mint(msg.sender, userReward); // Transfer 100 tokens to the user as a reward
+            if(referral != address(0))
+                token.mint(referral, referReward); // Transfer x tokens to the referral as a reward
             // Calculate new average including this guess
             uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
             currentAverage = newAverage;
@@ -163,10 +120,11 @@ contract VibeCheck is Ownable {
             emit GuessMade(msg.sender, currentAverage, newAverage, narrowReward, value);
         } else if (value >= currentAverage - broadLimit && value <= currentAverage + broadLimit) {
             // User's guess is within broad limit
-            uint userReward = (broadReward * 90) / 100;
-            uint referReward = broadReward - userReward;
-            token.transfer(msg.sender, userReward); // Transfer 45 tokens to the user as a reward
-            token.transfer(referral, referReward); // Transfer 5 tokens to the referral as a reward
+            uint userReward = broadReward;
+            uint referReward = (broadReward * referralReward) / 100;
+            token.mint(msg.sender, userReward); // Transfer 45 tokens to the user as a reward
+            if(referral != address(0))
+                token.mint(referral, referReward); // Transfer 5 tokens to the referral as a reward
             uint256 newAverage = ((currentAverage * totalGuesses) + value) / (totalGuesses+1);
             currentAverage = newAverage;
             guesses[msg.sender] = value;
@@ -263,6 +221,12 @@ contract VibeCheck is Ownable {
         broadReward = _broadReward;
     }
 
+    /// @notice Set referral rewards
+    /// @dev Requires that caller is owner
+    function setReferralRewards(uint256 _referralReward) public onlyOwner {
+        referralReward = _referralReward;
+    }
+
     /// @notice Set new fees for guessing
     /// @dev Requires that caller is owner
     function setFeeAmount(uint256 _feeAmount) public onlyOwner {
@@ -272,7 +236,7 @@ contract VibeCheck is Ownable {
     /// @notice Set new ERC20 Token Address
     /// @dev Requires that caller is owner
     function setTenTokenAddress(address _token) public onlyOwner {
-        token = IERC20(_token);
+        token = IERC20Def(_token);
     }
 
     function readAllWinnings() public view returns (address[] memory, uint256[] memory) {
@@ -293,7 +257,7 @@ contract VibeCheck is Ownable {
         uint256 _narrowReward,
          uint256 _broadReward
     ) public onlyOwner {
-        token = IERC20(_token);
+        token = IERC20Def(_token);
         question = _question;
         startTime = block.timestamp;
         endTime = startTime + _duration;
