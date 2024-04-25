@@ -425,6 +425,18 @@ describe('Deploy Contracts', function () {
             reward = await testERC20.connect(player).balanceOf(player.address)
             expect(reward).to.equal(50);
         });   
+
+        it('Should be able to change referral fee', async function () {
+            const { testERC20,vibeCheck,player,owner,referral} = await loadFixture(deployContracts);  
+            tx = await vibeCheck.connect(owner).setReferralRewards(20)
+            receipt = await tx.wait();
+            tx = await vibeCheck.connect(player).guess(referral.address,35,{value: ethers.utils.parseEther("0.000000000000000001")});
+            receipt = await tx.wait();
+            tx = await testERC20.connect(referral).balanceOf(referral.address)
+            // console.log(tx)
+            
+            expect(tx).to.equal(10);
+        });   
     })
 });
 

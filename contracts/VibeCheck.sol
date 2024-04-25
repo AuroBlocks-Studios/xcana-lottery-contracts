@@ -61,8 +61,8 @@ contract VibeCheck is Ownable {
     constructor(
         address _token, //ERC20 Token Address
         string memory _question, //Ques String
-        string memory _optionOne, //Ques String
-        string memory _optionTwo, //Ques String
+        string memory _optionOne, //Ques Option
+        string memory _optionTwo, //Ques Option
         uint256 _duration, //Change to start and end 
         uint256 _feeAmount, //Fee for guessing
         uint256 _initialAverage, //Initial Average 
@@ -254,7 +254,9 @@ contract VibeCheck is Ownable {
     /// @dev Requires that caller is owner
     function setParams(
         address _token, 
-        string memory _question, 
+        string memory _question,
+        string memory _optionOne, //Ques Option
+        string memory _optionTwo, //Ques Option
         uint256 _duration, 
         uint256 _feeAmount,
         uint256 _initialAverage, 
@@ -265,6 +267,8 @@ contract VibeCheck is Ownable {
     ) public onlyOwner {
         token = IERC20Def(_token);
         question = _question;
+        optionOne = _optionOne;
+        optionTwo = _optionTwo;
         startTime = block.timestamp;
         endTime = startTime + _duration;
         feeAmount = _feeAmount;
