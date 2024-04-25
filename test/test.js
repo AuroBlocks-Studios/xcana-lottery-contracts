@@ -21,6 +21,8 @@ describe('Deploy Contracts', function () {
     const vibeCheck = await VibeCheck.deploy(
       testERC20.address,
       'How do people like their coffee?',
+      'Hot',
+      "Cold",
       100000,
       1,
       30,

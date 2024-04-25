@@ -10,13 +10,15 @@ async function main() {
     const testERC20 = await TestERC20.deploy('Vibe','VIBE',100000000);
     await testERC20.deployed()
     console.log(
-      `Deployed to: ${await testERC20.address}`
+      `[Vibe Token] Deployed to: ${await testERC20.address}`
     );
 
     const VibeCheck = await hre.ethers.getContractFactory('VibeCheck');
     const vibeCheck = await VibeCheck.deploy(
       testERC20.address,
       'How do people like their coffee?',
+      'Hot',
+      'Cold',
       100000,
       1,
       30,
@@ -36,11 +38,13 @@ async function main() {
     
     await vibeCheck.deployed()
     console.log(
-        `Deployed to: ${await vibeCheck.address}`
+        `[Question 1] Deployed to: ${await vibeCheck.address}`
       );
     const vibeCheck2 = await VibeCheck.deploy(
       testERC20.address,
       'Do you go to the gym regularly?',
+      'Yes',
+      'No',
       100000,
       1,
       30,
@@ -60,7 +64,7 @@ async function main() {
     
     await vibeCheck2.deployed()
     console.log(
-        `Deployed to: ${await vibeCheck2.address}`
+        `[Question 2] Deployed to: ${await vibeCheck2.address}`
       );
     
     tx = await testERC20.transfer(await vibeCheck.address,100000)

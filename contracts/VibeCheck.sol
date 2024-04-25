@@ -11,6 +11,8 @@ interface IERC20Def{
 contract VibeCheck is Ownable {
     IERC20Def public token;    //TEN Token Address
     string public question; //Questions string
+    string public optionOne; //Questions string
+    string public optionTwo; //Questions string
     address private ownerAddress;   //Owner Address   
 
     uint256 public startTime;   //Start Time
@@ -59,6 +61,8 @@ contract VibeCheck is Ownable {
     constructor(
         address _token, //ERC20 Token Address
         string memory _question, //Ques String
+        string memory _optionOne, //Ques String
+        string memory _optionTwo, //Ques String
         uint256 _duration, //Change to start and end 
         uint256 _feeAmount, //Fee for guessing
         uint256 _initialAverage, //Initial Average 
@@ -70,6 +74,8 @@ contract VibeCheck is Ownable {
         ownerAddress = msg.sender;
         token = IERC20Def(_token);
         question = _question;
+        optionOne = _optionOne;
+        optionTwo = _optionTwo;
         startTime = block.timestamp;
         endTime = startTime + _duration;
         feeAmount = _feeAmount;
@@ -272,8 +278,8 @@ contract VibeCheck is Ownable {
     }
 
     /// @notice Check the question details
-    function checkQuestionDetails() external view returns (string memory, uint256, uint256, uint256) {
-        return (question,startTime,endTime,feeAmount);
+    function checkQuestionDetails() external view returns (string memory, uint256, uint256, uint256, string memory, string memory) {
+        return (question,startTime,endTime,feeAmount,optionOne,optionTwo);
     }
 
     /// @notice Withdraw collected fees from contract
