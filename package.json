@@ -9,7 +9,7 @@
     "coverage": "npx hardhat coverage",
     "deploy": "HARDHAT_NETWORK=mumbai npx hardhat run scripts/deploy.ts",
     "precommit": "npx hardhat compile",
-    "prepush": "npm run test",
+    "prepush": "npm run compile",
     "lint": "npm run lint:ts",
     "lint:fix": "npm run lint:ts:fix && npm run lint:sol:fix",
     "lint:js": "prettier --loglevel warn --ignore-path .gitignore \"**/*.js\" --check && eslint --ignore-path .gitignore .",

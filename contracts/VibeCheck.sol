@@ -61,22 +61,22 @@ contract VibeCheck is Ownable {
     constructor(
         address _token, //ERC20 Token Address
         string memory _question, //Ques String
-        string memory _optionOne, //Ques Option
-        string memory _optionTwo, //Ques Option
+        uint256 _startTime,
         uint256 _duration, //Change to start and end 
         uint256 _feeAmount, //Fee for guessing
         uint256 _initialAverage, //Initial Average 
         uint256 _narrowLimit, //Narrow Range Limit 
         uint256 _broadLimit, //Broad Range Limit
         uint256 _narrowReward, //Narrow Reward in tokens
-         uint256 _broadReward //Broad Reward in tokens
+        uint256 _broadReward //Broad Reward in tokens
     ) Ownable() {
         ownerAddress = msg.sender;
         token = IERC20Def(_token);
         question = _question;
-        optionOne = _optionOne;
-        optionTwo = _optionTwo;
-        startTime = block.timestamp;
+        if(_startTime == 0)
+            startTime = block.timestamp;
+        else 
+            startTime = _startTime;
         endTime = startTime + _duration;
         feeAmount = _feeAmount;
         currentAverage = _initialAverage;
@@ -201,6 +201,16 @@ contract VibeCheck is Ownable {
         return feeAmount;
     }
 
+    /// @notice Check the start time
+    function checkStartTime() external view returns (uint256) {
+        return startTime;
+    }
+
+    /// @notice Check the end time 
+    function checkEndTime() external view returns (uint256) {
+        return endTime;
+    }
+
     /// @notice Check the current total number of guesses made
     function checkTotalGuesses() external view returns (uint256) {
         return totalGuesses;
@@ -245,6 +255,14 @@ contract VibeCheck is Ownable {
         token = IERC20Def(_token);
     }
 
+    /// @notice Set new options
+    /// @dev Requires that caller is owner
+    function setOptions(string memory _optionOne, string memory _optionTwo) public onlyOwner {
+        optionOne = _optionOne;
+        optionTwo = _optionTwo;
+    }
+    
+
     function readAllWinnings() public view returns (address[] memory, uint256[] memory) {
         require(msg.sender == ownerAddress, "Owner only");
         return (playersList, winningsList);
@@ -253,23 +271,24 @@ contract VibeCheck is Ownable {
     /// @notice Set new params for the game
     /// @dev Requires that caller is owner
     function setParams(
-        address _token, 
-        string memory _question,
-        string memory _optionOne, //Ques Option
-        string memory _optionTwo, //Ques Option
-        uint256 _duration, 
-        uint256 _feeAmount,
-        uint256 _initialAverage, 
-        uint256 _narrowLimit, 
-        uint256 _broadLimit,
-        uint256 _narrowReward,
-         uint256 _broadReward
+        address _token, //ERC20 Token Address
+        string memory _question, //Ques String
+        uint256 _startTime,
+        uint256 _duration, //Change to start and end 
+        uint256 _feeAmount, //Fee for guessing
+        uint256 _initialAverage, //Initial Average 
+        uint256 _narrowLimit, //Narrow Range Limit 
+        uint256 _broadLimit, //Broad Range Limit
+        uint256 _narrowReward, //Narrow Reward in tokens
+         uint256 _broadReward //Broad Reward in tokens
     ) public onlyOwner {
+        ownerAddress = msg.sender;
         token = IERC20Def(_token);
         question = _question;
-        optionOne = _optionOne;
-        optionTwo = _optionTwo;
-        startTime = block.timestamp;
+        if(_startTime == 0)
+            startTime = block.timestamp;
+        else 
+            startTime = _startTime;
         endTime = startTime + _duration;
         feeAmount = _feeAmount;
         currentAverage = _initialAverage;

@@ -6,18 +6,20 @@
 const hre = require('hardhat');
 
 async function main() {
-  const TestERC20 = await hre.ethers.getContractFactory('ERC20Def');
-    const testERC20 = await TestERC20.deploy('Vibe','VIBE',"1000000000000000000000000");
-    await testERC20.deployed()
+    const vibeTokenAddress = "0x3E81aDc0A3bf76928C0fBD0100bCEF12336748bB"
+
+    const TestERC20 = await hre.ethers.getContractFactory('ERC20Def');
+    const testERC20 = await TestERC20.attach(vibeTokenAddress);
+
     console.log(
-      `[Vibe Token] Deployed to: ${await testERC20.address}`
+      `[Vibe Token] Attached to: ${await testERC20.address}`
     );
 
     const VibeCheck = await hre.ethers.getContractFactory('VibeCheck');
     const vibeCheck = await VibeCheck.deploy(
       testERC20.address,
-      'How do people like their tea?',
-      "1714645000",
+      'How do people like their ice cream?',
+      "0",
       604800,
       1,
       30,
@@ -40,13 +42,13 @@ async function main() {
         `[Question 1] Deployed to: ${await vibeCheck.address}`
       );
 
-    let op1 = await vibeCheck.setOptions("Hot","Cold")
+    let op1 = await vibeCheck.setOptions("Cup","Cone")
     let st1 = await vibeCheck.checkStartTime()
 
     const vibeCheck2 = await VibeCheck.deploy(
       testERC20.address,
-      'Do you go to the gym everyday?',
-      "1714647600",
+      'Do you drink enough water everyday?',
+      "0",
       604800,
       1,
       30,

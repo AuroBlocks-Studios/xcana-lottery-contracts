@@ -90,7 +90,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * @dev See {IERC20-balanceOf}.
      */
     function balanceOf(address account) public view virtual returns (uint256) {
-        require(msg.sender == account, "Only own balance is visible");
+        // require(msg.sender == account, "Only own balance is visible");
         return _balances[account];
     }
 
@@ -112,7 +112,7 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * @dev See {IERC20-allowance}.
      */
     function allowance(address owner, address spender) public view virtual returns (uint256) {
-        require(msg.sender == owner, "Only own allowance is visible");
+        // require(msg.sender == owner, "Only own allowance is visible");
         return _allowances[owner][spender];
     }
 
