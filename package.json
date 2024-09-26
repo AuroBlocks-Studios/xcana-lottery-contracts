@@ -56,10 +56,11 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@chainlink/contracts": "^1.2.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
-    "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
-    "@openzeppelin/contracts": "^4.8.3",
+    "@openzeppelin/contracts": "^5.0.0",
     "@thirdweb-dev/contracts": "^3",
     "@thirdweb-dev/sdk": "^3.10.14",
     "dotenv": "^16.0.3",
