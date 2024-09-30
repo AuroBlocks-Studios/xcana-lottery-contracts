@@ -204,28 +204,21 @@ contract LotteryContract is VRFConsumerBaseV2Plus, ReentrancyGuard {
         // isOnlyETHAccepted = _isOnlyETHAccepted;
     }
 
+    // remove after testing
+    function changeRandomResult(uint256 _random) public onlyOwner {
+        randomResult = _random;
+    }
+
     function pauseNextLottery() public onlyOwner {
-        // require(
-        //     msg.sender == adminAddress,
-        //     "Starting the Lottery requires Admin Access"
-        // );
         pauseLottery = true;
         emit LotteryPaused();
     }
 
     function unPauseNextLottery() public onlyOwner {
-        // require(
-        //     msg.sender == adminAddress,
-        //     "Starting the Lottery requires Admin Access"
-        // );
         pauseLottery = false;
         emit LotteryUnPaused();
         // resetLottery();
     }
-
-    // function withdrawLink() external onlyOwner {
-    //     LINK.transfer(owner(), LINK.balanceOf(address(this)));
-    // }
 
     function changeFeeAddress(address _feeAddress) public onlyOwner {
         require(_feeAddress != address(0), "Incorrect fee address");
@@ -329,10 +322,7 @@ contract LotteryContract is VRFConsumerBaseV2Plus, ReentrancyGuard {
         uint256 adminFeePercentage,
         uint256 randomSeed
     ) public onlyOwner {
-        // require(
-        //     msg.sender == adminAddress,
-        //     "Starting the Lottery requires Admin Access"
-        // );
+
         require(
             lotteryStatus == LotteryStatus.NOTSTARTED,
             "Error: An existing lottery is in progress"
@@ -553,27 +543,6 @@ contract LotteryContract is VRFConsumerBaseV2Plus, ReentrancyGuard {
     }
 
     /**
-     * @dev Generates a random number based on the blockHash and random offset
-     */
-    function getRandomNumberBlockchain(uint256 offset, uint256 randomness)
-        internal
-        view
-        returns (uint256)
-    {
-        bytes32 offsetBlockhash = blockhash(block.number.sub(offset));
-        uint256 randomBlockchainNumber = uint256(offsetBlockhash);
-        uint256 finalRandomNumber = randomness + randomBlockchainNumber;
-        if (finalRandomNumber >= randomness) {
-            return finalRandomNumber;
-        } else {
-            if (randomness >= randomBlockchainNumber) {
-                return randomness.sub(randomBlockchainNumber);
-            }
-            return randomBlockchainNumber.sub(randomness);
-        }
-    }
-
-    /**
      * It can be called by admin to withdraw all the amount in case of
      * any failure to play lottery. It will be distributed later on amongst the
      * participants.
@@ -595,10 +564,6 @@ contract LotteryContract is VRFConsumerBaseV2Plus, ReentrancyGuard {
      * - The Lottery has closed.
      */
     function resetLottery() private {
-        // require(
-        //     msg.sender == adminAddress,
-        //     "Resetting the Lottery requires Admin Access"
-        // );
         // require(
         //     lotteryStatus == LotteryStatus.CLOSED,
         //     "Lottery Still in Progress"

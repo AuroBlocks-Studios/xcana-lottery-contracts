@@ -691,7 +691,7 @@ contract LoserLotteryContract is VRFConsumerBaseV2Plus, ReentrancyGuard {
     bytes32 internal keyHash;
     uint256 public currentReqId;
     uint256 public s_subscriptionId;
-    uint256 internal randomResult;
+    uint256 public randomResult; //change to internal
     uint32 public callbackGasLimit = 100000;
     uint16 public requestConfirmations = 3;
     uint32 public numWords = 1;
@@ -746,9 +746,9 @@ contract LoserLotteryContract is VRFConsumerBaseV2Plus, ReentrancyGuard {
         uint256 _distributionAmount, //
         IERC20 _lotteryToken, // Rechance Lottery token
         address _feeAddress,
-        address _vrfCoordinator,
+        uint256 _subid,
         bytes32 _keyHash,
-        uint256 _subid
+        address _vrfCoordinator
     )
         VRFConsumerBaseV2Plus(_vrfCoordinator)
     {
@@ -765,6 +765,11 @@ contract LoserLotteryContract is VRFConsumerBaseV2Plus, ReentrancyGuard {
         s_subscriptionId = _subid;
     }
 
+    // remove after testing
+    function changeRandomResult(uint256 _random) public onlyOwner {
+        randomResult = _random;
+    }
+
     function changeDistributionAmount(uint256 _newAmount) public onlyOwner {
         distributionAmount = _newAmount;
     }
@@ -777,19 +782,11 @@ contract LoserLotteryContract is VRFConsumerBaseV2Plus, ReentrancyGuard {
     }
 
     function pauseNextLottery() public onlyOwner {
-        // require(
-        //     msg.sender == adminAddress,
-        //     "Starting the Lottery requires Admin Access"
-        // );
         pauseLottery = true;
         emit LotteryPaused();
     }
 
     function unPauseNextLottery() public onlyOwner {
-        // require(
-        //     msg.sender == adminAddress,
-        //     "Starting the Lottery requires Admin Access"
-        // );
         pauseLottery = false;
         emit LotteryUnPaused();
         // resetLottery();
@@ -1075,7 +1072,7 @@ contract LoserLotteryContract is VRFConsumerBaseV2Plus, ReentrancyGuard {
                 //     }("");
                 //     require(status, "Amount not transferred to winner");
                 // } else {
-                distributionToken.transfer(address(player), winningAmount);
+                distributionToken.mint(address(player), winningAmount);
                 // }
             }
 

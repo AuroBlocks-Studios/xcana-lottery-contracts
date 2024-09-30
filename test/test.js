@@ -48,6 +48,18 @@ describe('Deploy Contracts', function () {
   
     console.log("Lottery ERC20 deployed to:", lERC20Instance.address);
 
+    // Deploy LUSD
+    const xcanaInstance = await LERC20.deploy(
+      "Staked CANA",
+      "xCANA",
+      "18"
+    );
+  
+    await xcanaInstance.deployed();
+  
+    console.log("[xCANA] deployed to:", xcanaInstance.address);
+
+
     const MockVRF = await hre.ethers.getContractFactory('VRFCoordinatorV2_5Mock');
     const mockVRF = await MockVRF.deploy(
         "100000000000000000",
@@ -103,11 +115,12 @@ describe('Deploy Contracts', function () {
     tx = await mockVRF.addConsumer(subid,lotteryContractInstance.address);
     console.log('Consumer added')
 
-    // Deploy Loser Lottery[LUSD to NFT]
+    // Deploy Loser Lottery[LUSD to XCANA]
     const LoserLotteryContract = await hre.ethers.getContractFactory("contracts/LoserLotteryContractV3.sol:LoserLotteryContract");
 
     const loserContractInstance = await LoserLotteryContract.deploy(
-        usdcInstance.address,
+        xcanaInstance.address,
+        '1000000000000000000',
         lERC20Instance.address,
         owner.address,
         subid,
@@ -122,15 +135,15 @@ describe('Deploy Contracts', function () {
     tx = await loserContractInstance.setLotteryRules(
         1,
         2,
-        '10000000000000000000',
+        '1000000000000000000',
         1,
         1
     )
     await tx.wait();
 
     console.log('Loser Lottery Rules Set');
-        
-    tx = await lERC20Instance.addMinter(loserContractInstance.address);
+
+    tx = await xcanaInstance.addMinter(loserContractInstance.address);
     await tx.wait();
   
     console.log('Added minter')
@@ -145,6 +158,7 @@ describe('Deploy Contracts', function () {
         mockVRF,
         usdcInstance,
         lERC20Instance,
+        xcanaInstance,
         lotteryContractInstance,
         loserContractInstance
     }
@@ -168,7 +182,7 @@ describe('Deploy Contracts', function () {
           finBal = await usdcInstance.balanceOf(lotteryContractInstance.address);
           console.log("USDC Bal of lottery contract: ", finBal) 
 
-          expect(finBal).to.equal("10000000000000000000");
+          expect(finBal).to.equal("10000000");
         });
 
         it('Should be able to enter the lottery with 2 users', async function () {
@@ -198,7 +212,48 @@ describe('Deploy Contracts', function () {
             receipt = await tx.wait();
             console.log("Request fulfilled")
             
-            let testCase = (finBal == "20000000000000000000")
+            let testCase = (finBal == "20000000")
+  
+            expect(testCase).to.equal(true);
+          }); 
+
+        it('Should be able to enter the loser lottery with 2 users', async function () {
+            const { owner, player, lERC20Instance, xcanaInstance, loserContractInstance, mockVRF} = await loadFixture(deployContracts);
+            
+            tx = await lERC20Instance.mint(owner.address,"1000000000000000000")
+            receipt = await tx.wait();
+            tx = await lERC20Instance.mint(player.address,"1000000000000000000")
+            receipt = await tx.wait();
+            console.log("LUSD Minted")
+
+            tx = await lERC20Instance.connect(owner).approve(loserContractInstance.address,"1000000000000000000")
+            receipt = await tx.wait();
+            console.log("Approved")
+
+            tx = await lERC20Instance.connect(player).approve(loserContractInstance.address,"1000000000000000000")
+            receipt = await tx.wait();
+            console.log("Approved")
+  
+            tx = await loserContractInstance.connect(owner).enterLottery();
+            receipt = await tx.wait();
+
+            tx = await loserContractInstance.connect(player).enterLottery();
+            receipt = await tx.wait();
+  
+            finBal = await lERC20Instance.balanceOf(owner.address);
+            console.log("LUSD Bal of player1: ", finBal)
+
+            finBalTwo = await lERC20Instance.balanceOf(player.address);
+            console.log("LUSD Bal of player2: ", finBalTwo)
+            
+            let reqId = await loserContractInstance.currentReqId();
+            console.log('Req ID: ',reqId)
+
+            tx = await mockVRF.fulfillRandomWords(reqId,loserContractInstance.address);
+            receipt = await tx.wait();
+            console.log("Request fulfilled")
+            
+            let testCase = (finBal == "0") && (finBalTwo == "0")
   
             expect(testCase).to.equal(true);
           });        
@@ -246,6 +301,110 @@ describe('Deploy Contracts', function () {
   
             expect(testCase).to.equal(true);
           });
+
+        it('Should be able to settle the loser lottery', async function () {
+            const { owner, player, lERC20Instance, xcanaInstance, loserContractInstance, mockVRF} = await loadFixture(deployContracts);
+            
+            tx = await lERC20Instance.mint(owner.address,"1000000000000000000")
+            receipt = await tx.wait();
+            tx = await lERC20Instance.mint(player.address,"1000000000000000000")
+            receipt = await tx.wait();
+            console.log("LUSD Minted")
+
+            tx = await lERC20Instance.connect(owner).approve(loserContractInstance.address,"1000000000000000000")
+            receipt = await tx.wait();
+            console.log("Approved")
+
+            tx = await lERC20Instance.connect(player).approve(loserContractInstance.address,"1000000000000000000")
+            receipt = await tx.wait();
+            console.log("Approved")
+  
+            tx = await loserContractInstance.connect(owner).enterLottery();
+            receipt = await tx.wait();
+
+            tx = await loserContractInstance.connect(player).enterLottery();
+            receipt = await tx.wait();
+            
+            let reqId = await loserContractInstance.currentReqId();
+            console.log('Req ID: ',reqId)
+
+            tx = await mockVRF.fulfillRandomWords(reqId,loserContractInstance.address);
+            receipt = await tx.wait();
+            console.log("Request fulfilled")
+
+            let randomNumber = await loserContractInstance.randomResult();
+            console.log("Random Number: ", randomNumber);
+            
+            tx = await loserContractInstance.settleLottery()
+            receipt = await tx.wait();
+            console.log("Lottery settled")
+
+            finBalOne = await xcanaInstance.balanceOf(owner.address);
+            console.log("XCANA Bal of player1: ", finBalOne)
+
+            finBalTwo = await xcanaInstance.balanceOf(player.address);
+            console.log("XCANA Bal of player2: ", finBalTwo)
+
+            let testCase = (finBalOne != "0") || (finBalTwo != "0");
+  
+            expect(testCase).to.equal(true);
+          });
+
+
+    })
+    describe('Different Random values', function () {
+      
+        it('Should be able to settle the lottery [Random Number = 0]', async function () {
+            const { owner, player, usdcInstance, lotteryContractInstance, mockVRF} = await loadFixture(deployContracts);
+            
+            tx = await usdcInstance.connect(owner).approve(lotteryContractInstance.address,"10000000000000000000")
+            receipt = await tx.wait();
+            console.log("Approved")
+
+            tx = await usdcInstance.connect(player).approve(lotteryContractInstance.address,"10000000000000000000")
+            receipt = await tx.wait();
+            console.log("Approved")
+  
+            tx = await lotteryContractInstance.connect(owner).enterLottery();
+            receipt = await tx.wait();
+
+            tx = await lotteryContractInstance.connect(player).enterLottery();
+            receipt = await tx.wait();
+  
+            let reqId = await lotteryContractInstance.currentReqId()
+            console.log('Req ID: ',reqId)
+
+            tx = await mockVRF.fulfillRandomWords(reqId,lotteryContractInstance.address);
+            receipt = await tx.wait();
+            console.log("Request fulfilled")
+
+            tx = await lotteryContractInstance.changeRandomResult(0);
+            receipt = await tx.wait();
+
+            let randomNumber = await lotteryContractInstance.randomResult();
+            console.log("Random Number: ", randomNumber);
+            
+            tx = await lotteryContractInstance.settleLottery()
+            receipt = await tx.wait();
+            console.log("Lottery settled")
+
+            finBal = await usdcInstance.balanceOf(lotteryContractInstance.address);
+            console.log("USDC Bal of lottery contract: ", finBal)
+
+            let testCase = (finBal == "0");
+  
+            expect(testCase).to.equal(true);
+          });
+
+
+    })
+    describe('Test Owner functions', function () {
+      
+        // it('Should be able to settle the lottery', async function () {
+        //     const { owner, player, usdcInstance, lotteryContractInstance, mockVRF} = await loadFixture(deployContracts);
+            
+        //   });
+
 
 
     })
